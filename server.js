@@ -4,6 +4,7 @@ const fs = require('fs');
 const archiver = require('archiver');
 const request = require('request');
 const languageServer = require('./language-server/language-server');
+const blocklyConfig = require('./robotsrc/blockly.config');
 
 const app = express();
 
@@ -15,7 +16,7 @@ app.get('/mainPath', (req, res) => {
   res.send(languageServer.MAIN_PATH);
 });
 
-const ROBOT_HOST = 'localhost:8080';
+const ROBOT_HOST = 'robot.sr';
 app.post('/upload/upload', (req, res) => {
   res.send();
 });
@@ -61,6 +62,10 @@ app.post('/run', (req, res) => {
       });
     });
 
+    for(let fileToCopy of blocklyConfig.copyFiles) {
+      fs.copyFileSync('./robotsrc/' + fileToCopy, './data/files/' + fileToCopy);
+    }
+
     let archive = archiver('zip');
     archive.pipe(fileOutput);
     // noinspection JSCheckFunctionSignatures
@@ -70,6 +75,13 @@ app.post('/run', (req, res) => {
     archive.finalize();
   });
 });
+
+if(!fs.existsSync('./data')) {
+  fs.mkdirSync('./data');
+}
+if(!fs.existsSync('./data/files')) {
+  fs.mkdirSync('./data/files');
+}
 
 const server = app.listen(8080, () => console.log('Server listening on port 8080!'));
 languageServer.init(server);

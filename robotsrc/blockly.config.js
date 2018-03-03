@@ -1,9 +1,10 @@
 const INPUT_DISTANCE = "distance";
 const INPUT_ANGLE = "angle";
 
-module.exports = {
+const pinguBotConfig = {
     header: "from nicerobot import *\nimport time\n",
     footer: "",
+    copyFiles: [ 'nicerobot.py' ],
     blocks: [
         {
             id: "robot_move",
@@ -37,3 +38,25 @@ module.exports = {
         }
     ]
 };
+
+const INPUT_TIME = "time";
+
+const testBotConfig = {
+    header: "from testbot import *\n",
+    footer: "",
+    copyFiles: [ 'testbot.py' ],
+    blocks: [
+        {
+            id: "robot_move",
+            definition: ['Move', {name: INPUT_DISTANCE, type: 'number', initial: 1}, 'metres(s)'],
+            generator: inputs => `move(${inputs[INPUT_DISTANCE]})`
+        },
+        {
+            id: "robot_turn",
+            definition: ['Turn', {name: INPUT_ANGLE, type: 'angle', initial: 90}],
+            generator: inputs => `turn(${inputs[INPUT_ANGLE]})`
+        }
+    ]
+};
+
+module.exports = testBotConfig;
