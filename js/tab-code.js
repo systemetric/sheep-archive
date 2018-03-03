@@ -9,7 +9,7 @@ const pythonLanguage = require("./python");
 let tabCode = window.tabCode = document.getElementById('tab-code');
 let monacoEditor;
 
-window.amdRequire.config({ paths: { 'vs': 'js/monaco/vs' }});
+window.amdRequire.config({ paths: { 'vs': 'js/dist/vs' }});
 window.amdRequire(['vs/editor/editor.main'], () => {
     fetch('/mainPath').then(res => res.text()).then(mainPath => {
         monaco.languages.register({

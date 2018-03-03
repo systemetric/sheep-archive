@@ -5,6 +5,9 @@ let blocklyDiv = document.getElementById('blockly-div');
 
 let blocklyCodeArea = document.getElementById('code-area');
 
+let blocklyRobotToolbox = document.getElementById('blockly-toolbox-robot-category');
+blocklyRobotToolbox.innerHTML = window.blocklyRobotToolbox;
+
 let blocklyWorkspace = Blockly.inject(blocklyDiv,
     {toolbox: document.getElementById('toolbox')});
 let onResize = function() {
@@ -26,8 +29,8 @@ window.addEventListener('resize', onResize, false);
 onResize();
 Blockly.svgResize(blocklyWorkspace);
 
-function getBlocklyCode(header='from nicerobot import *\nimport time\n\n') {
-    return header + Blockly.Python.workspaceToCode(blocklyWorkspace);
+function getBlocklyCode(header=window.blocklyHeader, footer=window.blocklyFooter) {
+    return header + Blockly.Python.workspaceToCode(blocklyWorkspace) + footer;
 }
 
 function saveBlockly() {
@@ -41,8 +44,8 @@ function loadBlockly(text) {
 }
 
 blocklyWorkspace.addChangeListener(function() {
-    blocklyCodeArea.innerHTML = getBlocklyCode('');
+    blocklyCodeArea.innerHTML = getBlocklyCode('', '');
     Prism.highlightElement(blocklyCodeArea, true);
 });
-blocklyCodeArea.innerHTML = getBlocklyCode('');
+blocklyCodeArea.innerHTML = getBlocklyCode('', '');
 Prism.highlightElement(blocklyCodeArea, true);

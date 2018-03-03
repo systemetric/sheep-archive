@@ -1,6 +1,7 @@
 data/
 language-server/env/
 css/main.css
-js/monaco/
+*.map
+js/dist/
 projects/
 node_modules

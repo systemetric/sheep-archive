@@ -2,15 +2,17 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const jsSrcRoot = path.resolve(__dirname, "./js");
-const jsDistRoot = path.resolve(__dirname, "./js/monaco");
-const monacoEditorPath = './node_modules/monaco-editor-core/dev/vs';
+const commonConfig = {
+    module: {},
+};
 
-module.exports = {
+const monacoEditorPath = './node_modules/monaco-editor-core/dev/vs';
+const monacoConfig = Object.assign({}, commonConfig, {
+    name: "monaco",
     entry: ['./js/tab-code.js', './css/main.scss'],
     output: {
-        filename: 'bundle.js',
-        path: jsDistRoot
+        path: path.resolve(__dirname, "./js/dist"),
+        filename: 'bundle-monaco.js'
     },
     module: {
         noParse: /vscode-languageserver-types/,
@@ -28,7 +30,7 @@ module.exports = {
     resolve: {
         extensions: ['.js'],
         alias: {
-            'vs': path.resolve(jsSrcRoot, monacoEditorPath)
+            'vs': path.resolve(__dirname, monacoEditorPath)
         }
     },
     devtool: 'source-map',
@@ -51,4 +53,17 @@ module.exports = {
             allChunks: true,
         })
     ]
-};
+});
+
+const robotBlocksConfig = Object.assign({}, commonConfig, {
+    name: "robot-blocks",
+    entry: "./js/robot-blocks-loader.js",
+    output: {
+        path: path.resolve(__dirname, "./js/dist"),
+        filename: "bundle-robot-blocks.js"
+    },
+});
+
+module.exports = [
+    monacoConfig, robotBlocksConfig
+];

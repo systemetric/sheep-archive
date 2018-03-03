@@ -10,9 +10,8 @@
 
   <script src="js/blockly/blockly_compressed.js"></script>
   <script src="js/blockly/python_compressed.js"></script>
-  <script src="js/blockly/robot-block-generators.js"></script>
   <script src="js/blockly/blocks_compressed.js"></script>
-  <script src="js/blockly/robot-block-definitions.js"></script>
+  <script src="js/dist/bundle-robot-blocks.js"></script>
   <script src="js/blockly/msg/js/en-gb.js"></script>
 </head>
 <body>
@@ -125,13 +124,8 @@
       <!--TODO: Functions stopped working for some reason, but not sure why-->
       <!--<category name="Functions" custom="PROCEDURE"></category>-->
       <sep></sep>
-      <category name="Robot">
-        <block type="robot_move"></block>
-        <block type="robot_turn"></block>
-        <block type="robot_pickup"></block>
-        <block type="robot_drop"></block>
-        <block type="robot_find_go_cube"></block>
-        <block type="robot_find_go_bucket"></block>
+      <category name="Robot" id="blockly-toolbox-robot-category">
+
       </category>
     </xml>
     <pre id="output-area"><code id="code-area" class="language-python"></code></pre>
@@ -143,9 +137,9 @@
 
   <script src="js/prism.js" data-manual></script>
   <script src="js/tab-blocks.js"></script>
-  <script src="js/monaco/vs/loader.js"></script>
+  <script src="js/dist/vs/loader.js"></script>
   <script>window.amdRequire = window.require;</script>
-  <script src="js/monaco/bundle.js"></script>
+  <script src="js/dist/bundle-monaco.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
