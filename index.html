@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Nice Robot</title>
+
+  <link rel="stylesheet" href="css/main.css">
+
+  <script src="js/blockly/blockly_compressed.js"></script>
+  <script src="js/blockly/python_compressed.js"></script>
+  <script src="js/blockly/robot-block-generators.js"></script>
+  <script src="js/blockly/blocks_compressed.js"></script>
+  <script src="js/blockly/robot-block-definitions.js"></script>
+  <script src="js/blockly/msg/js/en-gb.js"></script>
+</head>
+<body>
+  <nav>
+    <p>Nice Robot</p>
+    <p class="selectable-button green" id="build-button">Run on Robot</p>
+    <p class="selectable-button dark" id="switch-button">Switch Editor</p>
+  </nav>
+
+  <div id="tab-blocks" style="display: block;">
+    <div id="blockly-area"></div>
+    <div id="blockly-div"></div>
+    <xml id="toolbox" style="display: none">
+      <category name="Text">
+        <block type="text"></block>
+        <block type="text_print"></block>
+      </category>
+      <category name="Logic">
+        <block type="controls_if"></block>
+        <block type="logic_compare"></block>
+        <block type="logic_operation"></block>
+        <block type="logic_negate"></block>
+        <block type="logic_boolean"></block>
+        <block type="logic_null"></block>
+        <block type="logic_ternary"></block>
+      </category>
+      <category name="Loops">
+        <block type="controls_repeat_ext">
+          <value name="TIMES">
+            <block type="math_number">
+              <field name="NUM">10</field>
+            </block>
+          </value>
+        </block>
+        <block type="controls_whileUntil"></block>
+        <block type="controls_for">
+          <field name="VAR">i</field>
+          <value name="FROM">
+            <block type="math_number">
+              <field name="NUM">1</field>
+            </block>
+          </value>
+          <value name="TO">
+            <block type="math_number">
+              <field name="NUM">10</field>
+            </block>
+          </value>
+          <value name="BY">
+            <block type="math_number">
+              <field name="NUM">1</field>
+            </block>
+          </value>
+        </block>
+        <block type="controls_forEach"></block>
+        <block type="controls_flow_statements"></block>
+      </category>
+      <category name="Math">
+        <block type="math_number"></block>
+        <block type="math_arithmetic"></block>
+        <block type="math_single"></block>
+        <block type="math_trig"></block>
+        <block type="math_constant"></block>
+        <block type="math_number_property"></block>
+        <block type="math_round"></block>
+        <block type="math_on_list"></block>
+        <block type="math_modulo"></block>
+        <block type="math_constrain">
+          <value name="LOW">
+            <block type="math_number">
+              <field name="NUM">1</field>
+            </block>
+          </value>
+          <value name="HIGH">
+            <block type="math_number">
+              <field name="NUM">100</field>
+            </block>
+          </value>
+        </block>
+        <block type="math_random_int">
+          <value name="FROM">
+            <block type="math_number">
+              <field name="NUM">1</field>
+            </block>
+          </value>
+          <value name="TO">
+            <block type="math_number">
+              <field name="NUM">100</field>
+            </block>
+          </value>
+        </block>
+        <block type="math_random_float"></block>
+      </category>
+      <category name="Lists">
+        <block type="lists_create_empty"></block>
+        <block type="lists_create_with"></block>
+        <block type="lists_repeat">
+          <value name="NUM">
+            <block type="math_number">
+              <field name="NUM">5</field>
+            </block>
+          </value>
+        </block>
+        <block type="lists_length"></block>
+        <block type="lists_isEmpty"></block>
+        <block type="lists_indexOf"></block>
+        <block type="lists_getIndex"></block>
+        <block type="lists_setIndex"></block>
+      </category>
+      <category name="Variables" custom="VARIABLE"></category>
+      <!--TODO: Functions stopped working for some reason, but not sure why-->
+      <!--<category name="Functions" custom="PROCEDURE"></category>-->
+      <sep></sep>
+      <category name="Robot">
+        <block type="robot_move"></block>
+        <block type="robot_turn"></block>
+        <block type="robot_pickup"></block>
+        <block type="robot_drop"></block>
+        <block type="robot_find_go_cube"></block>
+        <block type="robot_find_go_bucket"></block>
+      </category>
+    </xml>
+    <pre id="output-area"><code id="code-area" class="language-python"></code></pre>
+  </div>
+
+  <div id="tab-code" style="display: block;">
+    <div id="code-editor"></div>
+  </div>
+
+  <script src="js/prism.js" data-manual></script>
+  <script src="js/tab-blocks.js"></script>
+  <script src="js/monaco/vs/loader.js"></script>
+  <script>window.amdRequire = window.require;</script>
+  <script src="js/monaco/bundle.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

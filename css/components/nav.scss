@@ -1,0 +1,47 @@
+nav {
+  position: absolute;
+  top: 0;
+  height: 52px;
+  left: 0;
+  right: 0;
+  background-color: #333333;
+
+  > * {
+    font-size: 14px;
+    line-height: 14px;
+    padding: 8px;
+    height: 14px;
+    vertical-align: center;
+    margin: 11px;
+    color: white;
+    display: inline-block;
+    background-color: transparent;
+  }
+
+  > .selectable-button {
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 0;
+
+    &.green {
+      background-color: #4CAF50;
+
+      &:hover {
+        background-color: #388E3C;
+      }
+    }
+
+    &.dark {
+      background-color: #424242;
+
+      &:hover {
+        background-color: #3A3A3A;
+      }
+    }
+
+    &.selected {
+      background-color: #FFC107;
+      cursor: not-allowed;
+    }
+  }
+}

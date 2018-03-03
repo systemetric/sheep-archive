@@ -1,0 +1,6 @@
+data/
+language-server/env/
+css/main.css
+js/monaco/
+projects/
+node_modules
