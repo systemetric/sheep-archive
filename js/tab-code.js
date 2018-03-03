@@ -5,6 +5,7 @@ import {
 } from 'monaco-languageclient';
 const ReconnectingWebSocket = require('reconnecting-websocket');
 const pythonLanguage = require("./python");
+const blocklyConfig = require('../robotsrc/blockly.config');
 
 let tabCode = window.tabCode = document.getElementById('tab-code');
 let monacoEditor;
@@ -23,7 +24,7 @@ window.amdRequire(['vs/editor/editor.main'], () => {
         let codeEditor = document.getElementById('code-editor');
         // noinspection AmdModulesDependencies
         monacoEditor = window.monacoEditor = monaco.editor.create(codeEditor, {
-            model: monaco.editor.createModel('import nicerobot\n', 'python', monaco.Uri.parse(mainPath)),
+            model: monaco.editor.createModel(blocklyConfig.header, 'python', monaco.Uri.parse(mainPath)),
             theme: 'vs-dark'
         });
         tabCode.style.display = 'none';

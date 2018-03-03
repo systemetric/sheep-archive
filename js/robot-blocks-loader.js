@@ -1,4 +1,4 @@
-const config = require('../language-server/src/blockly.config');
+const config = require('../robotsrc/blockly.config');
 
 window.blocklyHeader = config.header;
 window.blocklyFooter = config.footer;

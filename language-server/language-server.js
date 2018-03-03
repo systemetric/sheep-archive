@@ -5,8 +5,8 @@ const rpc = require("vscode-ws-jsonrpc");
 const server = require("vscode-ws-jsonrpc/lib/server");
 const lsp = require("vscode-languageserver");
 
-module.exports.MAIN_PATH = 'file://' + path.resolve(__dirname, 'src/main.py').substring(2).replace(/\\/g, '/');
-const ROOT_PATH = path.resolve(__dirname, 'src');
+module.exports.MAIN_PATH = 'file://' + path.resolve(__dirname, '../robotsrc/main.py').substring(2).replace(/\\/g, '/');
+const ROOT_PATH = path.resolve(__dirname, '../robotsrc');
 
 function launch(socket) {
     const reader = new rpc.WebSocketMessageReader(socket);
