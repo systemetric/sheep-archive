@@ -39,8 +39,6 @@ const pinguBotConfig = {
     ]
 };
 
-const INPUT_TIME = "time";
-
 const testBotConfig = {
     header: "from testbot import *\n",
     footer: "",
@@ -59,4 +57,4 @@ const testBotConfig = {
     ]
 };
 
-module.exports = testBotConfig;
+module.exports = pinguBotConfig;

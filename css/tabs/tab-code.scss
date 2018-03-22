@@ -8,6 +8,37 @@
 }
 
 #code-editor {
-    width: 100%;
+    width: 70%;
     height: 100%;
+}
+
+#log {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc(30% - 32px);
+    height: calc(100% - 32px);
+    background-color: #222222;
+    color: #DDDDDD;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    padding: 16px;
+    outline: none;
+    border: none;
+    resize: none;
+}
+
+#log::-webkit-scrollbar {
+    width: 10px;
+}
+
+#log::-webkit-scrollbar-track {
+    background-color: #222222;
+}
+
+#log::-webkit-scrollbar-thumb {
+    background-color: #333333;
+}
+
+#log::-webkit-scrollbar-thumb:hover {
+    background-color: #444444;
 }

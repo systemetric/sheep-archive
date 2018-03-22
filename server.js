@@ -16,12 +16,26 @@ app.get('/mainPath', (req, res) => {
   res.send(languageServer.MAIN_PATH);
 });
 
-const ROBOT_HOST = 'robot.sr';
+const DEV = false;
+const ROBOT_HOST = DEV ? 'localhost:8080' : 'robot.sr';
 app.post('/upload/upload', (req, res) => {
   res.send();
 });
 app.post('/run/start', (req, res) => {
   res.send();
+});
+app.get('/run/output', (req, res) => {
+  res.send('I\'m a log I\'m a log,\nlog log log\nlog log log');
+});
+
+app.get('/log', (req, res) => {
+    request.get(`http://${ROBOT_HOST}/run/output`, (err, r) => {
+      if(!err) {
+        res.send(r.body);
+      } else {
+        res.send('ERROR!');
+      }
+    });
 });
 
 app.post('/run', (req, res) => {
@@ -85,3 +99,5 @@ if(!fs.existsSync('./data/files')) {
 
 const server = app.listen(8080, () => console.log('Server listening on port 8080!'));
 languageServer.init(server);
+
+

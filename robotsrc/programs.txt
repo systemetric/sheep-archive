@@ -1,0 +1,98 @@
+import nicerobot
+import time
+
+# Initialise robot
+R = nicerobot.Robot()
+
+# Move out of start area
+time.sleep(1)
+R.move(0.5)
+time.sleep(1)
+
+for i in range(1):
+    # Pickup cube
+    while True:
+        # Go to a cube and get its id
+        id = R.new_go_to(nicerobot.TOKEN)
+        if id == -1:
+            # Move a bit
+            R.turn(90)
+            R.move(1)
+        else:
+            # Try and pick it up
+            R.pickup_cube()
+            R.move(-0.4)
+            # Check if it was picked up
+            markers = R.see()
+            acceptable_markers = [m for m in markers if m.info.code == id]
+            if len(acceptable_markers) == 0:
+                break
+            # Otherwise try and pick it up again
+            R.drop()
+
+    # Goto the bucket and drop the cube
+    while True:
+        id = R.new_go_to(nicerobot.BUCKET)
+        if id == -1:
+            R.new_go_to(nicerobot.WALL)
+            R.turn(90)
+        else:
+            R.drop()
+            break
+
+    # Reverse out and rotate
+    R.move(-0.4)
+    R.turn(180)
+
+    #
+
+
+
+
+
+import nicerobot
+import time
+
+R = nicerobot.Robot()
+
+STATE_START = 'Start'
+STATE_CUBE_NOT_VISIBLE = 'Cube Not Visible'
+STATE_CUBE_VISIBLE = 'Cube Visible'
+STATE_CHECK_CUBE_COLLECTED = 'Check Cube Collected'
+STATE_DROP_OFF = 'Drop Off'
+
+state = STATE_START
+last_id = 0
+
+while True:
+    print state
+    if state == STATE_START:
+        time.sleep(1)
+        R.move(0.5)
+        time.sleep(1)
+        if R.can_see(nicerobot.TOKEN):
+            state = STATE_CUBE_VISIBLE
+        else:
+            state = STATE_CUBE_NOT_VISIBLE
+    elif state == STATE_CUBE_NOT_VISIBLE:
+        R.turn(45)
+        time.sleep(0.5)
+        if R.can_see(nicerobot.TOKEN):
+            state = STATE_CUBE_VISIBLE
+    elif state == STATE_CUBE_VISIBLE:
+        last_id = R.go_to(nicerobot.TOKEN)
+        state = STATE_CHECK_CUBE_COLLECTED
+    elif state == STATE_CHECK_CUBE_COLLECTED:
+        R.move(-0.4)
+        markers = R.see()
+        acceptable_markers = [m for m in markers if m.info.code == last_id]
+        if len(acceptable_markers) == 0:
+            state = STATE_DROP_OFF
+        else:
+            R.drop()
+            state = STATE_CUBE_VISIBLE
+    elif state == STATE_DROP_OFF:
+        R.new_go_to(nicerobot.BUCKET)
+        R.drop()
+        break
+        # state = STATE_CUBE_NOT_VISIBLE
