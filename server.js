@@ -9,7 +9,7 @@ const blocklyConfig = require('./robotsrc/blockly.config');
 const app = express();
 
 //TODO: Pretty bad for security, exposing server code, but meh (fix would probably involve having another package.json)
-app.use(express.static(__dirname));
+app.use(express.static(process.cwd()));
 app.use(bodyParser.json());
 
 app.get('/mainPath', (req, res) => {

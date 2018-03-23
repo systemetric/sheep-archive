@@ -9,15 +9,21 @@ angle_dps = 360.0 / 8.5
 
 R = Robot()
 def move(distance):
-    R.motors[0].m0.power = multiplier_left * 30
-    R.motors[0].m1.power = multiplier_right * -30
-    time.sleep(distance / distance_mps)
+    multiplier = 1
+    if distance < 0:
+        multiplier = -1
+    R.motors[0].m0.power = multiplier_left * 30 * multiplier
+    R.motors[0].m1.power = multiplier_right * -30 * multiplier
+    time.sleep(abs(distance / distance_mps))
     R.motors[0].m0.power = 0
     R.motors[0].m1.power = 0
 
 def turn(degrees):
-    R.motors[0].m0.power = multiplier_left * 30
-    R.motors[0].m1.power = multiplier_right * 30
-    time.sleep(degrees / angle_dps)
+    multiplier = 1
+    if degrees < 0:
+        multiplier = -1
+    R.motors[0].m0.power = multiplier_left * 30 * multiplier
+    R.motors[0].m1.power = multiplier_right * 30 * multiplier
+    time.sleep(abs(degrees / angle_dps))
     R.motors[0].m0.power = 0
     R.motors[0].m1.power = 0

@@ -57,4 +57,8 @@ const testBotConfig = {
     ]
 };
 
-module.exports = pinguBotConfig;
+const pacbotConfig = testBotConfig;
+pacbotConfig.header = "from pacbot import *\n";
+pacbotConfig.copyFiles = [ "pacbot.py" ];
+
+module.exports = pacbotConfig;
