@@ -142,14 +142,23 @@ class Robot(sr.robot.Robot):
     ARM_DOWN = 100
 
     MULTIPLIER_LEFT = -1
-    MULTIPLIER_RIGHT = 0.9  # 0.91
+    MULTIPLIER_RIGHT = 0.9 # 0.88
 
-    SPEED_50 = 1.25 / 3
-    SPEED_100 = 1.7 * SPEED_50 * 1.25
-    SPEED_ANGULAR_30 = 360 / 4.25
+    SPEED_50 = 3.6 / 10 #1.25 / 3
+    # SPEED_100 = 1.7 * SPEED_50 * 1.25
+    SPEED_ANGULAR_30 = 90.0 / 1.3 #360.0 / 4.25
 
     def __init__(self):
         super(Robot, self).__init__()
+
+        if self.battery_level() < 11.0:
+            print('╔══════════════════════╗')
+            print('║╔════════════════════╗╚╗')
+            print('║║████░░░░░░░░░░░░░░░░╚╗╚╗')
+            print('║║████░░░Low Battery░░░║ ║')
+            print('║║████░░░░░░░░░░░░░░░░╔╝╔╝')
+            print('║╚════════════════════╝╔╝')
+            print('╚══════════════════════╝')
 
         self.gate.mode = OUTPUT
         self.pump.mode = OUTPUT
@@ -165,13 +174,16 @@ class Robot(sr.robot.Robot):
     gate = GPIOProperty(1)
     pump = GPIOProperty(2)
 
+    def battery_level(self):
+        return self.motors[0]._tb.GetBatteryReading() * (12.5 / 12.25)
+
     def move(self, distance):
         multiplier = 1
         if distance < 0:
             multiplier = -1
-        self.left_wheel = self.MULTIPLIER_LEFT * 50 * multiplier
-        self.right_wheel = self.MULTIPLIER_RIGHT * 50 * multiplier
-
+        self.left_wheel = (self.MULTIPLIER_LEFT * 50 * multiplier)# - 1
+        self.right_wheel = (self.MULTIPLIER_RIGHT * 50 * multiplier)# - 1
+        
         time.sleep(abs(distance) / self.SPEED_50)
 
         self.right_wheel = 0
@@ -181,10 +193,14 @@ class Robot(sr.robot.Robot):
         multiplier = 1
         if angle < 0:
             multiplier = -1
+        
         self.left_wheel = self.MULTIPLIER_LEFT * 30 * multiplier
         self.right_wheel = self.MULTIPLIER_RIGHT * -30 * multiplier
 
+        #self.motors[0].led.colour = (255, 0, 0)
         time.sleep(abs(angle) / self.SPEED_ANGULAR_30)
+
+        self.motors[0].led.colour = (255, 255, 255)
 
         self.right_wheel = 0
         self.left_wheel = 0
@@ -232,34 +248,35 @@ class Robot(sr.robot.Robot):
         return len(acceptable_markers) > 0
 
     # Original goto
-    def go_to(self, marker_type):
-        if marker_type is TOKEN:
-            acceptable_types = [MARKER_TOKEN]
-            print("Looking for a token...")
-        elif marker_type is BUCKET:
-            acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
-            print("Looking for a bucket...")
-        else:
-            raise ValueError("Invalid marker_type")
+    # def go_to(self, marker_type):
+    #     if marker_type is TOKEN:
+    #         acceptable_types = [MARKER_TOKEN]
+    #         print("Looking for a token...")
+    #     elif marker_type is BUCKET:
+    #         acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
+    #         print("Looking for a bucket...")
+    #     else:
+    #         raise ValueError("Invalid marker_type")
 
-        while True:
-            markers = self.see()
-            acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
-            if acceptable_markers:
-                dest = acceptable_markers[0]
-                print("Found marker {} (dist {}, rot_y {})".format(
-                    dest.info.code, dest.dist, dest.rot_y
-                ))
-                self.turn(dest.rot_y)
-                time.sleep(0.3)
-                self.move(dest.dist)
-                return
-            print("Didn't find any acceptable markers, turning to try again")
-            self.turn(45)
-            time.sleep(0.3)
+    #     while True:
+    #         markers = self.see()
+    #         acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
+    #         if acceptable_markers:
+    #             dest = acceptable_markers[0]
+    #             print("Found marker {} (dist {}, rot_y {})".format(
+    #                 dest.info.code, dest.dist, dest.rot_y
+    #             ))
+    #             self.turn(dest.rot_y)
+    #             time.sleep(0.3)
+    #             self.move(dest.dist)
+    #             return
+    #         print("Didn't find any acceptable markers, turning to try again")
+    #         self.turn(45)
+    #         time.sleep(0.3)
 
     # Goto with multiple attempts
     def new_go_to(self, marker_type):
+        
         if marker_type is TOKEN:
             acceptable_types = [MARKER_TOKEN]
             print("Looking for a token...")
@@ -282,7 +299,7 @@ class Robot(sr.robot.Robot):
                     print("Found marker {} (dist {}, rot_y {})".format(
                         dest.info.code, dest.dist, dest.rot_y
                     ))
-                    self.turn(dest.rot_y * 2)
+                    self.turn(dest.rot_y)
                     time.sleep(0.3)
                     if dest.dist > 0.7:
                         self.move(0.5)
@@ -299,50 +316,99 @@ class Robot(sr.robot.Robot):
             tries += 1
         return -1
 
-    # Goto with multiple attempts and trig
-    def new_new_go_to(self, marker_type):
-        if marker_type is TOKEN:
-            acceptable_types = [MARKER_TOKEN]
-            print("Looking for a token...")
-        elif marker_type is BUCKET:
-            acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
-            print("Looking for a bucket...")
-        else:
-            raise ValueError("Invalid marker_type")
+    def look_for(self, marker_types):
+        acceptable_types = []
+        print("Looking for:")
+        if TOKEN in marker_types:
+            acceptable_types.append(MARKER_TOKEN)
+            print("  - Tokens")
+        if BUCKET in marker_types:
+            acceptable_types.append(MARKER_BUCKET_SIDE)
+            acceptable_types.append(MARKER_BUCKET_END)
+            print("  - Buckets")
+        if WALL in marker_types:
+            acceptable_types.append(MARKER_ARENA)
+            print("  - Walls")
+        if len(acceptable_types) == 0:
+            return []
 
-        while True:
-            while True:
-                markers = self.see()
-                acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
-                if acceptable_markers:
-                    dest = acceptable_markers[0]
-                    print("Found marker {} (dist {}, rot_y {})".format(
-                        dest.info.code, dest.dist, dest.rot_y
-                    ))
-
-                    if dest.rot_y > 20:
-                        self.turn(90 - dest.rot_y)
-                        time.sleep(0.3)
-                        self.move(dest.dist * math.sin(dest.rot_y))
-                        time.sleep(0.3)
-                        self.turn(-90)
-                    elif dest.rot_y < -20:
-                        self.turn(-90 + abs(dest.rot_y))
-                        time.sleep(0.3)
-                        self.move(dest.dist * math.sin(dest.rot_y))
-                        time.sleep(0.3)
-                        self.turn(-90)
-                    else:
-                        self.turn(dest.rot_y)
-                        time.sleep(0.3)
-                        if dest.dist > 0.6:
-                            self.move(0.4)
-                            time.sleep(0.3)
-                        else:
-                            self.move(dest.dist)
-                            return dest.info.code
-                else:
-                    break
+        tries = 0
+        while tries < 12:
+            markers = self.see()
+            acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
+            if acceptable_markers:
+                print("Found {} markers".format(len(acceptable_markers)))
+                return acceptable_markers
             print("Didn't find any acceptable markers, turning to try again")
-            self.turn(45)
+            self.turn(60)
             time.sleep(0.3)
+            tries += 1
+        return []
+
+    def move_to(self, code):
+        while True:
+            markers = [m for m in self.see() if m.info.code == code]
+            if len(markers) == 0:
+                print("Lost marker {}".format(code))
+                return False
+            marker = markers[0]
+            print("Moving to marker {} (dist {}, rot_y {})".format(
+                marker.info.code, marker.dist, marker.rot_y
+            ))
+            self.turn(marker.rot_y)
+            time.sleep(0.3)
+            if marker.dist > 0.7:
+                self.move(0.5)
+                time.sleep(0.3)
+            else:
+                if marker.info.marker_type != MARKER_ARENA:
+                    self.move(marker.dist)
+                return True
+
+    # Goto with multiple attempts and trig
+    # def new_new_go_to(self, marker_type):
+    #     if marker_type is TOKEN:
+    #         acceptable_types = [MARKER_TOKEN]
+    #         print("Looking for a token...")
+    #     elif marker_type is BUCKET:
+    #         acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
+    #         print("Looking for a bucket...")
+    #     else:
+    #         raise ValueError("Invalid marker_type")
+
+    #     while True:
+    #         while True:
+    #             markers = self.see()
+    #             acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
+    #             if acceptable_markers:
+    #                 dest = acceptable_markers[0]
+    #                 print("Found marker {} (dist {}, rot_y {})".format(
+    #                     dest.info.code, dest.dist, dest.rot_y
+    #                 ))
+
+    #                 if dest.rot_y > 20:
+    #                     self.turn(90 - dest.rot_y)
+    #                     time.sleep(0.3)
+    #                     self.move(dest.dist * math.sin(dest.rot_y))
+    #                     time.sleep(0.3)
+    #                     self.turn(-90)
+    #                 elif dest.rot_y < -20:
+    #                     self.turn(-90 + abs(dest.rot_y))
+    #                     time.sleep(0.3)
+    #                     self.move(dest.dist * math.sin(dest.rot_y))
+    #                     time.sleep(0.3)
+    #                     self.turn(-90)
+    #                 else:
+    #                     self.turn(dest.rot_y)
+    #                     time.sleep(0.3)
+    #                     if dest.dist > 0.6:
+    #                         self.move(0.4)
+    #                         time.sleep(0.3)
+    #                     else:
+    #                         self.move(dest.dist)
+    #                         return dest.info.code
+    #             else:
+    #                 break
+    #         print("Didn't find any acceptable markers, turning to try again")
+    #         self.turn(45)
+    #         time.sleep(0.3)
