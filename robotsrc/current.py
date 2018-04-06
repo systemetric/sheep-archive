@@ -10,7 +10,7 @@ print("🤖 Initialising robot...")
 R = nicerobot.Robot()
 
 # Move out of start area
-print("⬆ Moving out of start area...")
+print("⬆️ Moving out of start area...")
 time.sleep(1)
 R.move(0.5)
 time.sleep(1)
@@ -38,10 +38,10 @@ for i in range(3):
         else:
             # Goto the 1st cube
             target_cube_code = new_cubes[0].info.code
-            print("⬆ Moving towards cube {}...".format(target_cube_code))
+            print("⬆️ Moving towards cube {}...".format(target_cube_code))
             if not(R.move_to(target_cube_code)):
                 # We lost the cube so try and find another
-                print("  ⚠ Cannot see the cube anymore so looking for a new one")
+                print("  ⚠️ Cannot see the cube anymore so looking for a new one")
                 continue
 
             # Try and pick it up
@@ -55,11 +55,11 @@ for i in range(3):
             same_cubes = [cube for cube in cubes if cube.info.code == target_cube_code]
             if len(same_cubes) == 0:
                 # We can't see the cube in front of us so we must be holding it
-                print("    ✔ Cannot see the cube, so assuming it was")
+                print("    ✔️ Cannot see the cube, so assuming it was")
                 break
 
             # Otherwise try and pick it up again
-            print("    ⚠ Seen the cube, so turning off the pump, and trying again...")
+            print("    ⚠️ Seen the cube, so turning off the pump, and trying again...")
             R.drop()
 
     # Goto the bucket and drop the cube
@@ -88,10 +88,10 @@ for i in range(3):
             if len(buckets) > 0:
                 # TODO: Decide which way to move depending on the bucket
                 # Try to move towards the bucket
-                print("⬆ Moving towards bucket {}...".format(buckets[0].info.code))
+                print("⬆️ Moving towards bucket {}...".format(buckets[0].info.code))
                 if not(R.move_to(buckets[0].info.code)):
                     # We lost the bucket so try and find another
-                    print("  ⚠ Cannot see the bucket anymore so looking for a new one")
+                    print("  ⚠️ Cannot see the bucket anymore so looking for a new one")
                     continue
 
                 # We reached the bucket so drop/shake the cube off
@@ -116,7 +116,7 @@ for i in range(3):
             print("⬜ No buckets found, so checking for walls...")
             if len(walls) > 0:
                 # TODO: Decide which way to move depending on the wall
-                print("⬆ Moving towards wall {}...".format(walls[0].info.code))
+                print("⬆️ Moving towards wall {}...".format(walls[0].info.code))
                 R.move_to(walls[0].info.code)
 
     # Reverse out and rotate
