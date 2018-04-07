@@ -18,12 +18,33 @@ print("🗺️ Robot is in Zone {}".format(zone))
 #   Tokens:         (32 - 71)
 #   Bucket side:    (72 - 75)
 #   Bucket end:     (76 - 79)
-zones = [zone, (zone + 1 % 4), (zone + 2 % 4), (zone + 3 % 4)]
+class Quadrant:
+    def __init__(self, q_buckets, q_walls):
+        self.buckets = q_buckets
+        self.walls = q_walls
 
+quadrants = [
+    Quadrant(
+        [72, 76],
+        [0, 23, 1, 22, 2, 21]
+    ),
+    Quadrant(
+        [73, 77],
+        [6, 5, 7, 4, 8, 3]
+    ),
+    Quadrant(
+        [74, 78],
+        [12, 11, 13, 10, 14, 9]
+    ),
+    Quadrant(
+        [75, 79],
+        [18, 17, 19, 16, 20, 15]
+    )
+]
 
-desirable_walls = []
-
-desirable_buckets = []
+home = quadrants[zone]
+near = [quadrants[(zone - 1) % 4], quadrants[(zone + 1) % 4]]
+opposite = quadrants[(zone + 2) % 4]
 
 # Move out of start area
 print("⬆️ Moving out of start area...")
