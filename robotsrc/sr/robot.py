@@ -184,6 +184,7 @@ class Robot(object):
         bus = smbus.SMBus(1)
         self.servos = BlackJackBoardPWM(bus)
         self.gpio = BlackJackBoardGPIO(bus)
+        self.__zone = 0
 
     def off(self):
         for motor in self.motors:

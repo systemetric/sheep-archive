@@ -9,6 +9,22 @@ import time
 print("🤖 Initialising robot...")
 R = nicerobot.Robot()
 
+# Zone stuff
+# noinspection PyUnresolvedReferences
+zone = R.__zone
+print("🗺️ Robot is in Zone {}".format(zone))
+# Marker info
+#   Arena Boundary: (0 - 23)
+#   Tokens:         (32 - 71)
+#   Bucket side:    (72 - 75)
+#   Bucket end:     (76 - 79)
+zones = [zone, (zone + 1 % 4), (zone + 2 % 4), (zone + 3 % 4)]
+
+
+desirable_walls = []
+
+desirable_buckets = []
+
 # Move out of start area
 print("⬆️ Moving out of start area...")
 time.sleep(1)
@@ -32,7 +48,7 @@ for i in range(3):
         print("  Found {} cube(s), of which {} are new".format(len(cubes), len(new_cubes)))
         if len(new_cubes) == 0:
             # No new cubes found, so move a bit
-            print("  🚫 No new cubes were found, so moving a bit before looking again")
+            print("  ❌ No new cubes were found, so moving a bit before looking again")
             R.turn(90)
             R.move(1)
         else:
@@ -69,7 +85,7 @@ for i in range(3):
         markers = R.look_for([nicerobot.BUCKET, nicerobot.WALL])
         if len(markers) == 0:
             # No relevant markers found, so move a bit
-            print("  🚫 No relevant markers were found, so moving a bit before looking again")
+            print("  ❌ No relevant markers were found, so moving a bit before looking again")
             R.turn(90)
             R.move(1)
         else:
