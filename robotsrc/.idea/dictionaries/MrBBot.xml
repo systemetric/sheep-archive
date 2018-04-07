@@ -2,6 +2,7 @@
   <dictionary name="MrBBot">
     <words>
       <w>dest</w>
+      <w>noop</w>
     </words>
   </dictionary>
 </component>

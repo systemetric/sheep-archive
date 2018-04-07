@@ -26,6 +26,10 @@ BUCKET = object()
 WALL = object()
 
 
+def __noop__(arg):
+    raise RuntimeError("You called NOOP you fool!")
+
+
 def _make_servo_property(servo_num, docstring=None):
     def getter(self):
         return self.servos[servo_num]
@@ -142,11 +146,11 @@ class Robot(sr.robot.Robot):
     ARM_DOWN = 100
 
     MULTIPLIER_LEFT = -1
-    MULTIPLIER_RIGHT = 0.9 # 0.88
+    MULTIPLIER_RIGHT = 0.9  # 0.88
 
-    SPEED_50 = 3.6 / 10 #1.25 / 3
+    SPEED_50 = 3.6 / 10  # 1.25 / 3
     # SPEED_100 = 1.7 * SPEED_50 * 1.25
-    SPEED_ANGULAR_30 = 90.0 / 1.3 #360.0 / 4.25
+    SPEED_ANGULAR_30 = 90.0 / 1.3  # 360.0 / 4.25
 
     def __init__(self):
         super(Robot, self).__init__()
@@ -181,9 +185,10 @@ class Robot(sr.robot.Robot):
         multiplier = 1
         if distance < 0:
             multiplier = -1
-        self.left_wheel = (self.MULTIPLIER_LEFT * 50 * multiplier)# - 1
-        self.right_wheel = (self.MULTIPLIER_RIGHT * 50 * multiplier)# - 1
-        
+
+        self.left_wheel = (self.MULTIPLIER_LEFT * 50 * multiplier)  # - 1
+        self.right_wheel = (self.MULTIPLIER_RIGHT * 50 * multiplier)  # - 1
+
         time.sleep(abs(distance) / self.SPEED_50)
 
         self.right_wheel = 0
@@ -193,11 +198,11 @@ class Robot(sr.robot.Robot):
         multiplier = 1
         if angle < 0:
             multiplier = -1
-        
+
         self.left_wheel = self.MULTIPLIER_LEFT * 30 * multiplier
         self.right_wheel = self.MULTIPLIER_RIGHT * -30 * multiplier
 
-        #self.motors[0].led.colour = (255, 0, 0)
+        # self.motors[0].led.colour = (255, 0, 0)
         time.sleep(abs(angle) / self.SPEED_ANGULAR_30)
 
         self.motors[0].led.colour = (255, 255, 255)
@@ -206,6 +211,8 @@ class Robot(sr.robot.Robot):
         self.left_wheel = 0
 
     def see(self, *args, **kwargs):
+        # Avoid blurring
+        time.sleep(0.1)
         # Workaround for bug in sr.robot where the default resolution
         # causes an exception to be raised.
         DEFAULT_RESOLUTION = (640, 480)
@@ -276,7 +283,7 @@ class Robot(sr.robot.Robot):
 
     # Goto with multiple attempts
     def new_go_to(self, marker_type):
-        
+
         if marker_type is TOKEN:
             acceptable_types = [MARKER_TOKEN]
             print("Looking for a token...")
@@ -305,7 +312,7 @@ class Robot(sr.robot.Robot):
                         self.move(0.5)
                         time.sleep(0.3)
                     else:
-                        if not(marker_type is WALL):
+                        if not (marker_type is WALL):
                             self.move(dest.dist)
                         return dest.info.code
                 else:
@@ -316,7 +323,9 @@ class Robot(sr.robot.Robot):
             tries += 1
         return -1
 
-    def look_for(self, marker_types):
+    def look_for(self, marker_types, ignored_token_codes=None, sorted_quadrant_index_func=__noop__):
+        if ignored_token_codes is None:
+            ignored_token_codes = []
         acceptable_types = []
         print("Looking for:")
         if TOKEN in marker_types:
@@ -335,7 +344,35 @@ class Robot(sr.robot.Robot):
         tries = 0
         while tries < 12:
             markers = self.see()
-            acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
+            # acceptable_markers = [m for m in markers if
+            #                       (m.info.marker_type in acceptable_types) and
+            #                       not (m.info.code in ignored_token_codes) and
+            #                       (not (MARKER_ARENA in acceptable_types) or (
+            #                               not (sorted_quadrant_index_func == __noop__) or (
+            #                                   sorted_quadrant_index_func(m) == 0 and m.dist > 0.6) or (
+            #                                           sorted_quadrant_index_func(m) > 0)
+            #                       ))]
+            acceptable_markers = []
+            for m in markers:
+                print("Checking marker {}:".format(m.info.code))
+
+                if m.info.marker_type not in acceptable_types:
+                    print("  ❌ Marker is not in acceptable types!")
+                    continue
+
+                if m.info.code in ignored_token_codes:
+                    print("  ❌ Marker is in ignored codes!")
+                    continue
+
+                if MARKER_ARENA in acceptable_types:
+                    quadrant = sorted_quadrant_index_func(m)
+                    print("  📏 Marker is {}m away".format(m.dist))
+                    if quadrant == 0 and m.dist < 1:
+                        print("  ❌ Marker is too close too home!")
+
+                print("  ✔️ Marker is good!")
+                acceptable_markers.append(m)
+
             if acceptable_markers:
                 print("Found {} markers".format(len(acceptable_markers)))
                 return acceptable_markers
@@ -363,6 +400,8 @@ class Robot(sr.robot.Robot):
             else:
                 if marker.info.marker_type != MARKER_ARENA:
                     self.move(marker.dist)
+                else:
+                    return False
                 return True
 
     # Goto with multiple attempts and trig

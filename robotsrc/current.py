@@ -1,18 +1,37 @@
 # encoding: utf-8
+
+# Jittering wheels (perhaps battery)
+# Valve
+# If every sees cube apparently holding, then abort, and start again
+
 from __future__ import print_function
 
 import nicerobot
 import time
+import threading
 
 # Initialise robot
 print("🤖 Initialising robot...")
 R = nicerobot.Robot()
+print("🔋 Battery: {}V".format(R.battery_level()))
+
+
+def timer():
+    mins = 0.0
+    while True:
+        time.sleep(30)
+        mins += 0.5
+        print("⏲️ {} mins".format(mins))
+
+
+timer_thread = threading.Thread(target=timer)
+timer_thread.start()
 
 # Zone stuff
 # noinspection PyUnresolvedReferences
-zone = R.__zone
+zone = 3  # R.__zone
 print("🗺️ Robot is in Zone {}".format(zone))
-# Marker info
+# Marker ranges:
 #   Arena Boundary: (0 - 23)
 #   Tokens:         (32 - 71)
 #   Bucket side:    (72 - 75)
@@ -29,15 +48,19 @@ sorted_quadrants = [
     quadrants[(zone + 1) % 4],
     quadrants[(zone + 2) % 4]
 ]
+other_buckets = []
+for i in range(1, len(sorted_quadrants)):
+    for code in sorted_quadrants[i]:
+        if code >= 72:
+            other_buckets.append(code)
 
-def sorted_quadrant_index(marker):
-    for i in range(len(sorted_quadrants)):
-        if marker.info.code in sorted_quadrants[i]:
-            return i
-    return 5 # An impossible quadrant
+# Gets the index of the quadrant that a marker is in, where 0 is the home and 3 is the opposite
+def sorted_quadrant_index(m):
+    for quadrant_index in range(len(sorted_quadrants)):
+        if m.info.code in sorted_quadrants[quadrant_index]:
+            return quadrant_index
+    return 5  # An impossible quadrant
 
-def sort_markers(markers):
-    return sorted(markers, cmp=lambda a, b: sorted_quadrant_index(a) - sorted_quadrant_index(b))
 
 # Move out of start area
 print("⬆️ Moving out of start area...")
@@ -49,17 +72,17 @@ time.sleep(1)
 collected_cube_codes = []
 
 # TODO: Replace with while True during competition
-for i in range(3):
-    print("--- Cube {} ---".format(i))
+for i in range(6):
+    print("\n\n--- Cube {} ---".format(i))
 
     # Pickup cube
     target_cube_code = 0
     while True:
         # Find a cube
         print("📦 Looking for cubes...")
-        cubes = R.look_for([nicerobot.TOKEN])
-        new_cubes = [cube for cube in cubes if not(cube.info.code in collected_cube_codes)]
-        print("  Found {} cube(s), of which {} are new".format(len(cubes), len(new_cubes)))
+        new_cubes = R.look_for([nicerobot.TOKEN], collected_cube_codes, sorted_quadrant_index)
+        # new_cubes = [cube for cube in cubes if not(cube.info.code in collected_cube_codes)]
+        print("  Found {} cube(s)".format(len(new_cubes)))
         if len(new_cubes) == 0:
             # No new cubes found, so move a bit
             print("  ❌ No new cubes were found, so moving a bit before looking again")
@@ -92,19 +115,25 @@ for i in range(3):
             print("    ⚠️ Seen the cube, so turning off the pump, and trying again...")
             R.drop()
 
+    already_found_wall = False
     # Goto the bucket and drop the cube
     while True:
         # Find buckets or walls
-        print("🚩 Looking for buckets and walls...")
-        markers = R.look_for([nicerobot.BUCKET, nicerobot.WALL])
+        print("\n🚩 Looking for buckets and walls...")
+        types = [nicerobot.BUCKET]
+        if not already_found_wall:
+            types.append(nicerobot.WALL)
+        markers = R.look_for(types, other_buckets, sorted_quadrant_index)
         if len(markers) == 0:
             # No relevant markers found, so move a bit
             print("  ❌ No relevant markers were found, so moving a bit before looking again")
+            already_found_wall = False
             R.turn(90)
             R.move(1)
         else:
             # Sort the seen markers
             print("📜 Sorting the markers...")
+            markers.sort(key=sorted_quadrant_index)
             buckets = []
             walls = []
             for marker in markers:
@@ -116,20 +145,25 @@ for i in range(3):
             # Check for buckets first
             print("🗑️ Checking for buckets...")
             if len(buckets) > 0:
-                # TODO: Decide which way to move depending on the bucket
+                # Get the target bucket as the 1st one
+                target_bucket = buckets[0]
+                # Find the quadrant the bucket is in
+                target_bucket_quadrant = sorted_quadrant_index(target_bucket)
+                print("🗺️ Target bucket {} is in quadrant {}".format(target_bucket.info.code, target_bucket_quadrant))
                 # Try to move towards the bucket
-                print("⬆️ Moving towards bucket {}...".format(buckets[0].info.code))
-                if not(R.move_to(buckets[0].info.code)):
+                print("⬆️ Moving towards bucket {}...".format(target_bucket.info.code))
+                if not(R.move_to(target_bucket.info.code)):
                     # We lost the bucket so try and find another
                     print("  ⚠️ Cannot see the bucket anymore so looking for a new one")
                     continue
                 # We reached the bucket so drop/shake the cube off
                 print("🏗️ Dropping the cube...")
                 R.drop()
-                print("  🎵 <i>Shake it off, shake it off</i> 🎵")
+                print("  🎵 Shake it off, shake it off 🎵")
                 R.turn(-10)
                 R.turn(20)
-                R.turn(-10)
+                R.turn(-20)
+                R.turn(10)
 
                 # Register that we collected this cube
                 print("📝 Registering cube {} as collected...".format(target_cube_code))
@@ -144,9 +178,29 @@ for i in range(3):
             # Otherwise check for and move towards walls
             print("⬜ No buckets found, so checking for walls...")
             if len(walls) > 0:
-                # TODO: Decide which way to move depending on the wall
-                print("⬆️ Moving towards wall {}...".format(walls[0].info.code))
-                R.move_to(walls[0].info.code)
+                # Get the target wall as the 1st one
+                target_wall = walls[0]
+                # Find the quadrant the wall is in
+                target_wall_quadrant = sorted_quadrant_index(target_wall)
+                print("🗺️ Target wall {} is in quadrant {}".format(target_wall.info.code, target_wall_quadrant))
+                # If it's our home...
+                if target_wall_quadrant == 0:
+                    # Try to move towards the bucket
+                    print("⬆️ Moving towards wall {}...".format(walls[0].info.code))
+                    if not(R.move_to(walls[0].info.code)):
+                        R.turn(30)
+                    already_found_wall = True
+                # Otherwise try and turn to face home
+                elif target_wall_quadrant == 1:
+                    print("↪️ Turning anticlockwise to face home...")
+                    R.turn(-60)
+                elif target_wall_quadrant == 2:
+                    print("↩️ Turning clockwise to face home...")
+                    R.turn(60)
+                elif target_wall_quadrant == 3:
+                    print("🔄 Changing direction to face home...")
+                    R.turn(180)
+                continue
 
     # Reverse out and rotate
     print("🔄 Reversing out and rotating...")
