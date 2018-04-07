@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 from __future__ import print_function
 
 import nicerobot
@@ -18,33 +17,27 @@ print("🗺️ Robot is in Zone {}".format(zone))
 #   Tokens:         (32 - 71)
 #   Bucket side:    (72 - 75)
 #   Bucket end:     (76 - 79)
-class Quadrant:
-    def __init__(self, q_buckets, q_walls):
-        self.buckets = q_buckets
-        self.walls = q_walls
-
 quadrants = [
-    Quadrant(
-        [72, 76],
-        [0, 23, 1, 22, 2, 21]
-    ),
-    Quadrant(
-        [73, 77],
-        [6, 5, 7, 4, 8, 3]
-    ),
-    Quadrant(
-        [74, 78],
-        [12, 11, 13, 10, 14, 9]
-    ),
-    Quadrant(
-        [75, 79],
-        [18, 17, 19, 16, 20, 15]
-    )
+    [72, 76, 0, 23, 1, 22, 2, 21],
+    [73, 77, 6, 5, 7, 4, 8, 3],
+    [74, 78, 12, 11, 13, 10, 14, 9],
+    [75, 79, 18, 17, 19, 16, 20, 15]
+]
+sorted_quadrants = [
+    quadrants[zone],
+    quadrants[(zone - 1) % 4],
+    quadrants[(zone + 1) % 4],
+    quadrants[(zone + 2) % 4]
 ]
 
-home = quadrants[zone]
-near = [quadrants[(zone - 1) % 4], quadrants[(zone + 1) % 4]]
-opposite = quadrants[(zone + 2) % 4]
+def sorted_quadrant_index(marker):
+    for i in range(len(sorted_quadrants)):
+        if marker.info.code in sorted_quadrants[i]:
+            return i
+    return 5 # An impossible quadrant
+
+def sort_markers(markers):
+    return sorted(markers, cmp=lambda a, b: sorted_quadrant_index(a) - sorted_quadrant_index(b))
 
 # Move out of start area
 print("⬆️ Moving out of start area...")
@@ -130,7 +123,6 @@ for i in range(3):
                     # We lost the bucket so try and find another
                     print("  ⚠️ Cannot see the bucket anymore so looking for a new one")
                     continue
-
                 # We reached the bucket so drop/shake the cube off
                 print("🏗️ Dropping the cube...")
                 R.drop()
