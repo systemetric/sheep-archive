@@ -121,7 +121,7 @@ for i in range(3):
                     buckets.append(marker)
 
             # Check for buckets first
-            print("🕳️ Checking for buckets...")
+            print("🗑️ Checking for buckets...")
             if len(buckets) > 0:
                 # TODO: Decide which way to move depending on the bucket
                 # Try to move towards the bucket
