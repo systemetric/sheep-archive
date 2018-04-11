@@ -36,7 +36,8 @@ def _make_servo_property(servo_num, docstring=None):
 
     def setter(self, value):
         if not (-160 <= value <= 160):
-            raise ValueError("Servo power must be in the range -160 to 160 (given: {})".format(value))
+            raise ValueError(
+                "Servo power must be in the range -160 to 160 (given: {})".format(value))
         self.servos[servo_num] = value
 
     return property(getter, setter, doc=docstring)
@@ -215,7 +216,7 @@ class Robot(sr.robot.Robot):
         time.sleep(0.1)
         # Workaround for bug in sr.robot where the default resolution
         # causes an exception to be raised.
-        DEFAULT_RESOLUTION = (640, 480)
+        DEFAULT_RESOLUTION = (640, 480)  # (1296, 976)
         if len(args) < 3 and "res" not in kwargs:
             kwargs.update({"res": DEFAULT_RESOLUTION})
         return super(Robot, self).see(*args, **kwargs)
@@ -238,21 +239,21 @@ class Robot(sr.robot.Robot):
     def drop(self):
         self.pump = False
 
-    def can_see(self, marker_type):
-        if marker_type is TOKEN:
-            acceptable_types = [MARKER_TOKEN]
-            print("Looking for a token...")
-        elif marker_type is BUCKET:
-            acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
-            print("Looking for a bucket...")
-        elif marker_type is WALL:
-            acceptable_types = [MARKER_ARENA]
-            print("Looking for a wall...")
-        else:
-            raise ValueError("Invalid marker_type")
-        markers = self.see()
-        acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
-        return len(acceptable_markers) > 0
+    # def can_see(self, marker_type):
+    #     if marker_type is TOKEN:
+    #         acceptable_types = [MARKER_TOKEN]
+    #         print("Looking for a token...")
+    #     elif marker_type is BUCKET:
+    #         acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
+    #         print("Looking for a bucket...")
+    #     elif marker_type is WALL:
+    #         acceptable_types = [MARKER_ARENA]
+    #         print("Looking for a wall...")
+    #     else:
+    #         raise ValueError("Invalid marker_type")
+    #     markers = self.see()
+    #     acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
+    #     return len(acceptable_markers) > 0
 
     # Original goto
     # def go_to(self, marker_type):
@@ -282,48 +283,48 @@ class Robot(sr.robot.Robot):
     #         time.sleep(0.3)
 
     # Goto with multiple attempts
-    def new_go_to(self, marker_type):
+    # def new_go_to(self, marker_type):
 
-        if marker_type is TOKEN:
-            acceptable_types = [MARKER_TOKEN]
-            print("Looking for a token...")
-        elif marker_type is BUCKET:
-            acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
-            print("Looking for a bucket...")
-        elif marker_type is WALL:
-            acceptable_types = [MARKER_ARENA]
-            print("Looking for a wall...")
-        else:
-            raise ValueError("Invalid marker_type")
+    #     if marker_type is TOKEN:
+    #         acceptable_types = [MARKER_TOKEN]
+    #         print("Looking for a token...")
+    #     elif marker_type is BUCKET:
+    #         acceptable_types = [MARKER_BUCKET_SIDE, MARKER_BUCKET_END]
+    #         print("Looking for a bucket...")
+    #     elif marker_type is WALL:
+    #         acceptable_types = [MARKER_ARENA]
+    #         print("Looking for a wall...")
+    #     else:
+    #         raise ValueError("Invalid marker_type")
 
-        tries = 0
-        while tries < 12:
-            while True:
-                markers = self.see()
-                acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
-                if acceptable_markers:
-                    dest = acceptable_markers[0]
-                    print("Found marker {} (dist {}, rot_y {})".format(
-                        dest.info.code, dest.dist, dest.rot_y
-                    ))
-                    self.turn(dest.rot_y)
-                    time.sleep(0.3)
-                    if dest.dist > 0.7:
-                        self.move(0.5)
-                        time.sleep(0.3)
-                    else:
-                        if not (marker_type is WALL):
-                            self.move(dest.dist)
-                        return dest.info.code
-                else:
-                    break
-            print("Didn't find any acceptable markers, turning to try again")
-            self.turn(60)
-            time.sleep(0.3)
-            tries += 1
-        return -1
+    #     tries = 0
+    #     while tries < 12:
+    #         while True:
+    #             markers = self.see(res=(1920, 1088))
+    #             acceptable_markers = [m for m in markers if m.info.marker_type in acceptable_types]
+    #             if acceptable_markers:
+    #                 dest = acceptable_markers[0]
+    #                 print("Found marker {} (dist {}, rot_y {})".format(
+    #                     dest.info.code, dest.dist, dest.rot_y
+    #                 ))
+    #                 self.turn(dest.rot_y)
+    #                 time.sleep(0.3)
+    #                 if dest.dist > 0.7:
+    #                     self.move(0.5)
+    #                     time.sleep(0.3)
+    #                 else:
+    #                     if not (marker_type is WALL):
+    #                         self.move(dest.dist)
+    #                     return dest.info.code
+    #             else:
+    #                 break
+    #         print("Didn't find any acceptable markers, turning to try again")
+    #         self.turn(60)
+    #         time.sleep(0.3)
+    #         tries += 1
+    #     return -1
 
-    def look_for(self, marker_types, ignored_token_codes=None, sorted_quadrant_index_func=__noop__):
+    def look_for(self, marker_types, ignored_token_codes=None, sorted_quadrant_index_func=__noop__, resolution=(640, 480)):
         if ignored_token_codes is None:
             ignored_token_codes = []
         acceptable_types = []
@@ -343,7 +344,9 @@ class Robot(sr.robot.Robot):
 
         tries = 0
         while tries < 12:
-            markers = self.see()
+            # One rotation at low res, and if nothing is spotted, one at specified (probably high/zoomed)
+            markers = self.see(res=resolution if tries > 6 else (640, 480))
+            print(str(resolution) if tries > 6 else (640, 480))
             # acceptable_markers = [m for m in markers if
             #                       (m.info.marker_type in acceptable_types) and
             #                       not (m.info.code in ignored_token_codes) and
@@ -368,7 +371,7 @@ class Robot(sr.robot.Robot):
                     quadrant = sorted_quadrant_index_func(m)
                     print("  📏 Marker is {}m away".format(m.dist))
                     if quadrant == 0 and m.dist < 1:
-                        print("  ❌ Marker is too close too home!")
+                        print("  ❌ Marker is too close to home!")
 
                 print("  ✔️ Marker is good!")
                 acceptable_markers.append(m)
@@ -384,6 +387,7 @@ class Robot(sr.robot.Robot):
 
     def move_to(self, code):
         while True:
+            # FIXME: cannot head to marker seen at higher res?
             markers = [m for m in self.see() if m.info.code == code]
             if len(markers) == 0:
                 print("Lost marker {}".format(code))
@@ -394,7 +398,7 @@ class Robot(sr.robot.Robot):
             ))
             self.turn(marker.rot_y)
             time.sleep(0.3)
-            if marker.dist > 0.7:
+            if marker.dist > 0.8:
                 self.move(0.5)
                 time.sleep(0.3)
             else:
