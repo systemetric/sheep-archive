@@ -213,7 +213,7 @@ class Robot(sr.robot.Robot):
 
     def see(self, *args, **kwargs):
         # Avoid blurring
-        time.sleep(0.1)
+        time.sleep(0.25)
         # Workaround for bug in sr.robot where the default resolution
         # causes an exception to be raised.
         DEFAULT_RESOLUTION = (640, 480)  # (1296, 976)
@@ -324,7 +324,7 @@ class Robot(sr.robot.Robot):
     #         tries += 1
     #     return -1
 
-    def look_for(self, marker_types, ignored_token_codes=None, sorted_quadrant_index_func=__noop__, resolution=(640, 480)):
+    def look_for(self, marker_types, ignored_token_codes=None, sorted_quadrant_index_func=__noop__, resolution=(640, 480), clockwise=True):
         if ignored_token_codes is None:
             ignored_token_codes = []
         acceptable_types = []
@@ -337,16 +337,20 @@ class Robot(sr.robot.Robot):
             acceptable_types.append(MARKER_BUCKET_END)
             print("  - Buckets")
         if WALL in marker_types:
-            acceptable_types.append(MARKER_ARENA)
-            print("  - Walls")
+            # acceptable_types.append(MARKER_ARENA)
+            print("  - Walls (after 3rd try)")
         if len(acceptable_types) == 0:
-            return []
+            return [], resolution
 
         tries = 0
-        while tries < 12:
+        while tries < 16:
+            if (tries == 3) and (WALL in marker_types):
+                acceptable_types.append(MARKER_ARENA)
+                print("Now looking for walls") 
             # One rotation at low res, and if nothing is spotted, one at specified (probably high/zoomed)
-            markers = self.see(res=resolution if tries > 6 else (640, 480))
-            print(str(resolution) if tries > 6 else (640, 480))
+            resolution = resolution if tries > 8 else (640, 480)
+            markers = self.see(res=resolution)
+            print(str(resolution))
             # acceptable_markers = [m for m in markers if
             #                       (m.info.marker_type in acceptable_types) and
             #                       not (m.info.code in ignored_token_codes) and
@@ -378,17 +382,17 @@ class Robot(sr.robot.Robot):
 
             if acceptable_markers:
                 print("Found {} markers".format(len(acceptable_markers)))
-                return acceptable_markers
+                return acceptable_markers, resolution
             print("Didn't find any acceptable markers, turning to try again")
-            self.turn(60)
+            self.turn(45 if clockwise else -45)
             time.sleep(0.3)
             tries += 1
-        return []
+        return [], resolution
 
-    def move_to(self, code):
+    def move_to(self, code, resolution=(640, 480)):
         while True:
             # FIXME: cannot head to marker seen at higher res?
-            markers = [m for m in self.see() if m.info.code == code]
+            markers = [m for m in self.see(res=resolution) if m.info.code == code]
             if len(markers) == 0:
                 print("Lost marker {}".format(code))
                 return False
@@ -398,8 +402,10 @@ class Robot(sr.robot.Robot):
             ))
             self.turn(marker.rot_y)
             time.sleep(0.3)
+            if marker.dist < 1.5:
+                resolution = (640, 480)
             if marker.dist > 0.8:
-                self.move(0.5)
+                self.move(0.4)
                 time.sleep(0.3)
             else:
                 if marker.info.marker_type != MARKER_ARENA:
