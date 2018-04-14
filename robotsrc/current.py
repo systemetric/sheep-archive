@@ -205,6 +205,7 @@ while True:
             if len(same_cubes) == 0:
                 # We can't see the cube in front of us so we must be holding it
                 print("    ✔️ Cannot see the cube, so assuming it was")
+                R.turn(90 if clockwise else -90)
                 break
 
             # Otherwise try and pick it up again
@@ -298,7 +299,9 @@ while True:
                 print("🔄 Reversing out and rotating...")
                 R.move(-0.4)
                 print("Is side:", is_side)
-                R.turn(-135 if is_side else 135)
+                R.turn(-90 if is_side else 90)
+                time.sleep(0.1)
+                R.move(0.3)
 
                 # Then go and look for another cube
                 break

@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c87036d8-49a2-49c7-8021-4d39e258c33d" name="Default" comment="">
+      <change beforePath="" afterPath="$PROJECT_DIR$/sight.py" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/current.py" afterPath="$PROJECT_DIR$/current.py" />
-      <change beforePath="$PROJECT_DIR$/nicerobot.py" afterPath="$PROJECT_DIR$/nicerobot.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,9 +18,21 @@
       <file leaf-file-name="current.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/current.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="661">
-              <caret line="358" column="0" lean-forward="true" selection-start-line="358" selection-start-column="0" selection-end-line="358" selection-end-column="0" />
+            <state relative-caret-position="540">
+              <caret line="312" column="29" lean-forward="true" selection-start-line="312" selection-start-column="29" selection-end-line="312" selection-end-column="29" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="sight.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sight.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="175">
+              <caret line="7" column="17" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="7" selection-end-column="17" />
+              <folding>
+                <element signature="e#0#16#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -104,6 +116,7 @@
         <option value="$PROJECT_DIR$/spastic.py" />
         <option value="$PROJECT_DIR$/cubestack.py" />
         <option value="$PROJECT_DIR$/nicerobot.py" />
+        <option value="$PROJECT_DIR$/sight.py" />
         <option value="$PROJECT_DIR$/current.py" />
       </list>
     </option>
@@ -359,7 +372,14 @@
       <option name="project" value="LOCAL" />
       <updated>1523715655332</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Speedy stuff">
+      <created>1523723495053</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1523723495053</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -400,7 +420,8 @@
     <MESSAGE value="Quadrant stuff" />
     <MESSAGE value="New robot code" />
     <MESSAGE value="Pushed stuff" />
-    <option name="LAST_COMMIT_MESSAGE" value="Pushed stuff" />
+    <MESSAGE value="Speedy stuff" />
+    <option name="LAST_COMMIT_MESSAGE" value="Speedy stuff" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -579,10 +600,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/sight.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="7" column="17" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="7" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/current.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="661">
-          <caret line="358" column="0" lean-forward="true" selection-start-line="358" selection-start-column="0" selection-end-line="358" selection-end-column="0" />
+        <state relative-caret-position="540">
+          <caret line="312" column="29" lean-forward="true" selection-start-line="312" selection-start-column="29" selection-end-line="312" selection-end-column="29" />
           <folding />
         </state>
       </provider>
