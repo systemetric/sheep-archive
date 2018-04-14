@@ -56,7 +56,7 @@ led_thread = threading.Thread(target=do_led_pattern)
 
 # Zone stuff
 # noinspection PyUnresolvedReferences
-zone = R.zone  # R.zone  # 3
+zone = 1  # R.zone  # R.zone  # 3
 print("🗺️ Robot is in Zone {}".format(zone))
 # Marker ranges:
 #   Arena Boundary: (0 - 23)
@@ -155,9 +155,8 @@ anitclockwise_markers.extend(relative_zones[3])
 anitclockwise_markers.extend(relative_zones[2])
 
 pickup_index = 1
+clockwise = False
 while True:
-    clockwise = True
-
     print("\n\n--- Cube {} ---".format(pickup_index))
     pickup_index += 1
 
@@ -321,6 +320,8 @@ while True:
 
                     if target_wall.info.code in third_markers:
                         R.turn(30 if clockwise else -30)
+                        if target_wall.dist > 1.5:
+                            R.move(0.3)
                     else:
                         # Try to move towards the bucket
                         print("⬆️ Moving towards wall {}...".format(
@@ -347,6 +348,8 @@ while True:
                     clockwise = False
                     R.turn(-45)
                 continue
+
+    clockwise = False
 
     if pickup_index == 3:
         print("SWITCHING RES!!!!!!!")

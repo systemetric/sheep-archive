@@ -150,6 +150,7 @@ class Robot(sr.robot.Robot):
     MULTIPLIER_RIGHT = 0.9  # 0.88
 
     SPEED_50 = 3.6 / 10  # 1.25 / 3
+    SPEED_95 = 3.6 / 10 * 1.7  # 1.25 / 3
     # SPEED_100 = 1.7 * SPEED_50 * 1.25
     SPEED_ANGULAR_30 = 90.0 / 1.3  # 360.0 / 4.25
 
@@ -183,15 +184,31 @@ class Robot(sr.robot.Robot):
     def battery_level(self):
         return self.motors[0]._tb.GetBatteryReading() * (12.5 / 12.25)
 
-    def move(self, distance):
+    def move(self, distance, speed=95):
         multiplier = 1
         if distance < 0:
             multiplier = -1
 
-        self.left_wheel = (self.MULTIPLIER_LEFT * 50 * multiplier)  # - 1
-        self.right_wheel = (self.MULTIPLIER_RIGHT * 50 * multiplier)  # - 1
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # THIS IS WORKING, SO PLEASE DON'T DELETE MEH MEH MEH!!!
+        # self.left_wheel = (self.MULTIPLIER_LEFT * 50 * multiplier)  # - 1
+        # self.right_wheel = (self.MULTIPLIER_RIGHT * 50 * multiplier)  # - 1
 
-        time.sleep(abs(distance) / self.SPEED_50)
+        time_speed = self.SPEED_95 if speed == 95 else self.SPEED_50
+
+        self.left_wheel = (self.MULTIPLIER_LEFT * speed * multiplier)  # - 1
+        self.right_wheel = (self.MULTIPLIER_RIGHT * speed * multiplier)  # - 1
+
+        self.motors[0].led.colour = (255, 0, 0)
+        # time.sleep(abs(distance) / self.SPEED_50)
+        time.sleep(abs(distance) / time_speed)
+        self.motors[0].led.colour = (0, 255, 0)
 
         self.right_wheel = 0
         self.left_wheel = 0
@@ -380,6 +397,10 @@ class Robot(sr.robot.Robot):
                     if quadrant == 0 and m.dist < 1:
                         print("  ❌ Marker is too close to home!")
 
+                if m.info.marker_type == MARKER_TOKEN and m.dist > 3.5:
+                    print("  ❌ Cube is too far away!")
+                    continue
+
                 print("  ✔️ Marker is good!")
                 acceptable_markers.append(m)
 
@@ -416,7 +437,7 @@ class Robot(sr.robot.Robot):
                 time.sleep(0.3)
             else:
                 if marker.info.marker_type != MARKER_ARENA:
-                    self.move(marker.dist)
+                    self.move(marker.dist, speed=50)
                 else:
                     return False
                 return True
