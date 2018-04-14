@@ -171,6 +171,7 @@ class Robot(sr.robot.Robot):
         self.right_wheel = 0
         self.left_wheel = 0
         self.arm = self.ARM_UP
+        self.start_res = (640, 480)
 
     left_wheel = _make_servo_property(SERVO_LEFT)
     right_wheel = _make_servo_property(SERVO_RIGHT)
@@ -216,7 +217,7 @@ class Robot(sr.robot.Robot):
         time.sleep(0.25)
         # Workaround for bug in sr.robot where the default resolution
         # causes an exception to be raised.
-        DEFAULT_RESOLUTION = (640, 480)  # (1296, 976)
+        DEFAULT_RESOLUTION = self.start_res  # (1296, 976)
         if len(args) < 3 and "res" not in kwargs:
             kwargs.update({"res": DEFAULT_RESOLUTION})
         return super(Robot, self).see(*args, **kwargs)
@@ -324,9 +325,11 @@ class Robot(sr.robot.Robot):
     #         tries += 1
     #     return -1
 
-    def look_for(self, marker_types, ignored_token_codes=None, sorted_quadrant_index_func=__noop__, resolution=(640, 480), clockwise=True):
+    def look_for(self, marker_types, ignored_token_codes=None, sorted_quadrant_index_func=__noop__, resolution=None, clockwise=True):
         if ignored_token_codes is None:
             ignored_token_codes = []
+        if resolution is None:
+            resolution = self.start_res
         acceptable_types = []
         print("Looking for:")
         if TOKEN in marker_types:
@@ -346,9 +349,9 @@ class Robot(sr.robot.Robot):
         while tries < 16:
             if (tries == 3) and (WALL in marker_types):
                 acceptable_types.append(MARKER_ARENA)
-                print("Now looking for walls") 
+                print("Now looking for walls")
             # One rotation at low res, and if nothing is spotted, one at specified (probably high/zoomed)
-            resolution = resolution if tries > 8 else (640, 480)
+            resolution = resolution if tries > 8 else self.start_res
             markers = self.see(res=resolution)
             print(str(resolution))
             # acceptable_markers = [m for m in markers if
@@ -389,7 +392,9 @@ class Robot(sr.robot.Robot):
             tries += 1
         return [], resolution
 
-    def move_to(self, code, resolution=(640, 480)):
+    def move_to(self, code, resolution=None):
+        if resolution is None:
+            resolution = self.start_res
         while True:
             # FIXME: cannot head to marker seen at higher res?
             markers = [m for m in self.see(res=resolution) if m.info.code == code]
@@ -402,8 +407,10 @@ class Robot(sr.robot.Robot):
             ))
             self.turn(marker.rot_y)
             time.sleep(0.3)
+            if marker.info.marker_type == MARKER_ARENA and marker.dist < 0.4:
+                return False
             if marker.dist < 1.5:
-                resolution = (640, 480)
+                resolution = self.start_res
             if marker.dist > 0.8:
                 self.move(0.4)
                 time.sleep(0.3)

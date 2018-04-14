@@ -21,7 +21,8 @@ def timer():
     while True:
         time.sleep(30)
         mins += 0.5
-        print(" ______________________\n(0RGSDOFCJftli;:.:. .  )\n T\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"T\n |.;....,..........;..|\n |;;:: .  .    .      |\n l;;;:. :   .     ..  ;\n `;;:::.: .    .     .\'\n  l;;:. ..  .     .: ;\n  `;;::.. .    .  ; .\'\n   l;;:: .  .    \/  ;\n    \\;;:. .   .,\'  \/\n     `\\;:.. ..\'  .\'\n       `\\;:.. ..\'\n         \\;:. \/\n          l; f\n          `;f\'\n           ||\n           ;l.\n          ;: l\n         \/ ;  \\\n       ,\/  :   `.\n     .\/\' . :     `.\n    \/\' ,\'  :       \\\n   f  \/  . :        i\n  ,\' ;  .  :        `.\n  f ;  .   :      .  i\n .\'    :   :       . `.\n f ,  .    ;       :  i\n |    :  ,\/`.       : |\n |    ;,\/;:. `.     . |\n |___,\/;;:. . .`._____|\n(QB0ZDOLC7itz!;:.:. .  )\n \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"")
+        print(
+            " ______________________\n(0RGSDOFCJftli;:.:. .  )\n T\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"T\n |.;....,..........;..|\n |;;:: .  .    .      |\n l;;;:. :   .     ..  ;\n `;;:::.: .    .     .\'\n  l;;:. ..  .     .: ;\n  `;;::.. .    .  ; .\'\n   l;;:: .  .    \/  ;\n    \\;;:. .   .,\'  \/\n     `\\;:.. ..\'  .\'\n       `\\;:.. ..\'\n         \\;:. \/\n          l; f\n          `;f\'\n           ||\n           ;l.\n          ;: l\n         \/ ;  \\\n       ,\/  :   `.\n     .\/\' . :     `.\n    \/\' ,\'  :       \\\n   f  \/  . :        i\n  ,\' ;  .  :        `.\n  f ;  .   :      .  i\n .\'    :   :       . `.\n f ,  .    ;       :  i\n |    :  ,\/`.       : |\n |    ;,\/;:. `.     . |\n |___,\/;;:. . .`._____|\n(QB0ZDOLC7itz!;:.:. .  )\n \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"")
         print("⏲️ {} mins".format(mins))
 
 
@@ -55,7 +56,7 @@ led_thread = threading.Thread(target=do_led_pattern)
 
 # Zone stuff
 # noinspection PyUnresolvedReferences
-zone = 3  # R.zone  # 3
+zone = 0  # R.zone  # R.zone  # 3
 print("🗺️ Robot is in Zone {}".format(zone))
 # Marker ranges:
 #   Arena Boundary: (0 - 23)
@@ -68,6 +69,7 @@ quadrants = [
     [74, 78, 12, 11, 13, 10, 14, 9],
     [75, 79, 18, 17, 19, 16, 20, 15]
 ]
+third_markers = [2, 3, 8, 9, 14, 15, 20, 21]
 sorted_quadrants = [
     quadrants[zone],
     quadrants[(zone - 1) % 4],
@@ -104,6 +106,7 @@ for i in range(1, len(sorted_quadrants)):
     for code in sorted_quadrants[i]:
         if code >= 72:
             other_buckets.append(code)
+
 
 # Gets the index of the quadrant that a marker is in, where 0 is the home and 3 is the opposite
 
@@ -164,7 +167,8 @@ while True:
     while True:
         # Find a cube
         print("📦 Looking for cubes...")
-        new_cubes, found_res = R.look_for([nicerobot.TOKEN], collected_cube_codes, sorted_quadrant_index, resolution=(1920, 1088) if len(collected_cube_codes) >= 2 else (640, 480))
+        new_cubes, found_res = R.look_for([nicerobot.TOKEN], collected_cube_codes, sorted_quadrant_index,
+                                          resolution=(1920, 1088) if len(collected_cube_codes) >= 2 else (640, 480))
         # new_cubes = [cube for cube in cubes if not(cube.info.code in collected_cube_codes)]
         print("  Found {} cube(s)".format(len(new_cubes)))
         if len(new_cubes) == 0:
@@ -176,10 +180,15 @@ while True:
             # Calculate nearest cube
             print("Working out closest cube..")
             new_cubes.sort(key=operator.attrgetter('dist'))
+            print("PRINTING SORTED CUBES!!!")
+            for new_cube in new_cubes:
+                print(new_cube.dist)
+            print("FINISHED PRINTING SORTED CUBES!!!")
 
             target_cube_code = new_cubes[0].info.code
-            print("⬆️ Moving towards cube {} which is {}m off the ground...".format(target_cube_code, new_cubes[0].centre.world.y))
-            if not(R.move_to(target_cube_code, found_res)):
+            print("⬆️ Moving towards cube {} which is {}m off the ground...".format(target_cube_code,
+                                                                                    new_cubes[0].centre.world.y))
+            if not (R.move_to(target_cube_code, found_res)):
                 # We lost the cube so try and find another
                 print("  ⚠️ Cannot see the cube anymore so looking for a new one")
                 continue
@@ -217,7 +226,8 @@ while True:
         for potential_marker in range(32, 72):
             if potential_marker != target_cube_code:
                 ignored.append(potential_marker)
-        markers, found_res = R.look_for(types, ignored, sorted_quadrant_index, resolution=(1920, 1088), clockwise=clockwise) # if not already_found_wall else (640, 480))
+        markers, found_res = R.look_for(types, ignored, sorted_quadrant_index, resolution=(1920, 1088),
+                                        clockwise=clockwise)  # if not already_found_wall else (640, 480))
         if len(markers) == 0:
             # No relevant markers found, so move a bit
             print(
@@ -238,14 +248,15 @@ while True:
                 elif marker.info.marker_type == nicerobot.MARKER_TOKEN:
                     if marker.info.code == target_cube_code:
                         print("☢️☢️☢️ ABORT!!!!!! CUBE WHICH IS APPARENTLY PICKED UP WAS SEEN!!!! ☢️☢️☢️")
+                        pickup_index -= 1
                         R.drop()
                         aborted = True
                         break
                 else:
                     buckets.append(marker)
             if aborted:
-                break        
-            # Check for buckets first
+                break
+                # Check for buckets first
             print("🗑️ Checking for buckets...")
             if len(buckets) > 0:
                 # Get the target bucket as the 1st one
@@ -257,7 +268,7 @@ while True:
                 # Try to move towards the bucket
                 print("⬆️ Moving towards bucket {}...".format(
                     target_bucket.info.code))
-                if not(R.move_to(target_bucket.info.code, found_res)):
+                if not (R.move_to(target_bucket.info.code, found_res)):
                     # We lost the bucket so try and find another
                     print("  ⚠️ Cannot see the bucket anymore so looking for a new one")
                     continue
@@ -269,12 +280,12 @@ while True:
                 print("🏗️ Dropping the cube...")
                 R.drop()
                 time.sleep(0.1)
-                print("  🎵 Shake it off, shake it off 🎵")
-                R.turn(-10)
-                R.turn(20)
-                R.turn(-20)
-                R.turn(10)
-                time.sleep(0.1)
+                # print("  🎵 Shake it off, shake it off 🎵")
+                # R.turn(-10)
+                # R.turn(20)
+                # R.turn(-20)
+                # R.turn(10)
+                # time.sleep(0.1)
 
                 # Register that we collected this cube
                 print("📝 Registering cube {} as collected...".format(
@@ -305,27 +316,40 @@ while True:
                     target_wall.info.code, target_wall_quadrant))
                 # If it's our home...
                 if target_wall_quadrant == 0:
-                    clockwise = not(walls[0].info.code in anitclockwise_markers)
+                    clockwise = not (walls[0].info.code in anitclockwise_markers)
                     print("Clockwise:", clockwise)
 
-                    # Try to move towards the bucket
-                    print("⬆️ Moving towards wall {}...".format(
-                        walls[0].info.code))
-                    if not(R.move_to(walls[0].info.code, found_res)):
+                    if target_wall.info.code in third_markers:
                         R.turn(30 if clockwise else -30)
-                    
-                    already_found_wall = True
+                    else:
+                        # Try to move towards the bucket
+                        print("⬆️ Moving towards wall {}...".format(
+                            walls[0].info.code))
+                        if not (R.move_to(walls[0].info.code, found_res)):
+                            R.turn(30 if clockwise else -30)
+
+                        already_found_wall = True
                 # Otherwise try and turn to face home
                 elif target_wall_zone == 0:
                     print("↩️ Turning clockwise a little to face home...")
-                    R.turn(90)
+                    clockwise = True
+                    R.turn(45)
                 elif target_wall_zone == 1:
                     print("↩️ Turning clockwise a lot to face home...")
-                    R.turn(160)
+                    clockwise = True
+                    R.turn(90)
                 elif target_wall_zone == 2:
                     print("↩️ Turning anticlockwise a lot to face home...")
-                    R.turn(-160) 
+                    clockwise = False
+                    R.turn(-90)
                 elif target_wall_zone == 3:
                     print("↩️ Turning anticlockwise a little to face home...")
-                    R.turn(-90)
+                    clockwise = False
+                    R.turn(-45)
                 continue
+
+    if pickup_index == 3:
+        print("SWITCHING RES!!!!!!!")
+        print("SWITCHING RES!!!!!!!")
+        print("SWITCHING RES!!!!!!!")
+        R.start_res = (1296, 976)
