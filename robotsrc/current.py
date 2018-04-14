@@ -56,7 +56,7 @@ led_thread = threading.Thread(target=do_led_pattern)
 
 # Zone stuff
 # noinspection PyUnresolvedReferences
-zone = 1  # R.zone  # R.zone  # 3
+zone = R.zone  # R.zone  # R.zone  # 3
 print("🗺️ Robot is in Zone {}".format(zone))
 # Marker ranges:
 #   Arena Boundary: (0 - 23)
