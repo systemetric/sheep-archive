@@ -171,7 +171,7 @@ class Robot(sr.robot.Robot):
         self.right_wheel = 0
         self.left_wheel = 0
         self.arm = self.ARM_UP
-        self.start_res = (640, 480)
+        self.start_res = (1296, 976)  # (640, 480)
 
     left_wheel = _make_servo_property(SERVO_LEFT)
     right_wheel = _make_servo_property(SERVO_RIGHT)
