@@ -357,16 +357,17 @@ class Robot(sr.robot.Robot):
             acceptable_types.append(MARKER_BUCKET_END)
             print("  - Buckets")
         if WALL in marker_types:
-            # acceptable_types.append(MARKER_ARENA)
-            print("  - Walls (after 3rd try)")
+            acceptable_types.append(MARKER_ARENA)
+            # print("  - Walls (after 3rd try)")
+            print("  - Walls")
         if len(acceptable_types) == 0:
             return [], resolution
 
         tries = 0
         while tries < 16:
-            if (tries == 3) and (WALL in marker_types):
-                acceptable_types.append(MARKER_ARENA)
-                print("Now looking for walls")
+            # if (tries == 3) and (WALL in marker_types):
+            #     acceptable_types.append(MARKER_ARENA)
+            #     print("Now looking for walls")
             # One rotation at low res, and if nothing is spotted, one at specified (probably high/zoomed)
             resolution = resolution if tries > 8 else self.start_res
             markers = self.see(res=resolution)

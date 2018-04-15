@@ -198,7 +198,7 @@ while True:
 
             # Check if it was picked up
             print("  👀 Checking if the cube was picked up...")
-            R.move(-0.5)
+            R.move(-0.5, speed=50)
             cubes = R.see()
             same_cubes = [
                 cube for cube in cubes if cube.info.code == target_cube_code]
@@ -259,6 +259,7 @@ while True:
                 # Check for buckets first
             print("🗑️ Checking for buckets...")
             if len(buckets) > 0:
+                buckets.sort(key=operator.attrgetter('rot_y'), reverse=True)
                 # Get the target bucket as the 1st one
                 target_bucket = buckets[0]
                 # Find the quadrant the bucket is in
@@ -299,7 +300,8 @@ while True:
                 print("🔄 Reversing out and rotating...")
                 R.move(-0.4)
                 print("Is side:", is_side)
-                R.turn(-90 if is_side else 90)
+                R.turn(-120 if is_side else 120)
+                clockwise = not is_side
                 time.sleep(0.1)
                 R.move(0.3)
 
@@ -352,7 +354,7 @@ while True:
                     R.turn(-45)
                 continue
 
-    clockwise = False
+    # clockwise = False
 
     if pickup_index == 3:
         print("SWITCHING RES!!!!!!!")
