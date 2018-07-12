@@ -11,7 +11,7 @@ const ROOT_PATH = path.resolve(__dirname, '../robotsrc');
 function launch(socket) {
     const reader = new rpc.WebSocketMessageReader(socket);
     const writer = new rpc.WebSocketMessageWriter(socket);
-    const serverPath = path.resolve(__dirname, 'env/Scripts/pyls');
+    const serverPath = path.resolve(__dirname, 'env/bin/pyls');
     const socketConnection = server.createConnection(reader, writer, () => socket.dispose());
     const serverConnection = server.createServerProcess('PYTHON', serverPath/*, ['-vv']*/);
     server.forward(socketConnection, serverConnection, message => {

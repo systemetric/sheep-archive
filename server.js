@@ -17,7 +17,7 @@ app.get('/mainPath', (req, res) => {
 });
 
 const DEV = false;
-const ROBOT_HOST = DEV ? 'localhost:8080' : 'robot.sr';
+const ROBOT_HOST = DEV ? 'localhost:8080' : '127.0.0.1';
 app.post('/upload/upload', (req, res) => {
   res.send();
 });
