@@ -1,3 +1,5 @@
+THIS IS NOW INTERGRATED WITH SHEPHERD
+
 # Sheep
 🐑 Nicer editors for shepherd
 
